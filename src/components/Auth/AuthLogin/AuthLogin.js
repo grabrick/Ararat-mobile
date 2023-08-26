@@ -1,11 +1,10 @@
 import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, Button } from "react-native";
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
+import AxiosInstance from '../../Extra/Axios/AxiosInstance'
 import Logo from '../../../../assets/images/Logo.png'
 import { useState } from "react";
-import axios from 'axios'
 
-export const AuthLogin = ({onChange}) => {
+export const AuthLogin = ({swap, onChange}) => {
     const [inputValue, setInputValue] = useState({
         email: '',
         password: ''
@@ -17,17 +16,23 @@ export const AuthLogin = ({onChange}) => {
     const saveAuthToken = async (token) => {
         try {
           const serializedData = JSON.stringify(token);
-          await SecureStore.setItemAsync('Auth', serializedData);
-          onChange(true)
+          if(serializedData) {
+            await SecureStore.setItemAsync('Auth', serializedData);
+            onChange(true)
+          }
         } catch (error) {
           console.error('Ошибка при сохранении токена:', error);
         }
     }
 
     const onClickAuth = () => {
-        axios.post(`https://puzzle.araratchess.ru:8080/api/auth/login`, inputValue)
+        AxiosInstance.post(`/auth/login`, inputValue)
         .then(res => {
-            saveAuthToken(res.data)
+            if (res.status === 200) {
+                saveAuthToken(res.data)
+            }
+        }).catch(e => {
+            console.error(e)
         })
     }
     return (
@@ -50,7 +55,7 @@ export const AuthLogin = ({onChange}) => {
                     />
                     <View style={styles.regLinkWrapper}>
                         <Text style={styles.link}>Нет аккаунта</Text>
-                        <Button title="Регистрация" onPress={() => onChange(true)}></Button>
+                        <Button title="Регистрация" onPress={() => swap(true)}></Button>
                     </View>
                 </View>
                 <View style={styles.loginWrapper}>

@@ -1,50 +1,66 @@
-import { Image, View, TextInput, StyleSheet, Button } from "react-native";
+import { Image, View, TextInput, StyleSheet, SafeAreaView, Button } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import SearchLoop from '../../../../assets/images/Search.png'
 
-export const Search = () => {
+export const Search = ({setCategoryActive, categoryActive}) => {
     return (
-        <LinearGradient
-            colors={['#CCC', '#FFF', '#C8C8C8', '#FFF', '#C4C4C4']}
-            locations={[0, 0.2292, 0.5208, 0.7813, 1]}
-            start={[0.5, 0]}
-            end={[0.5, 1]}
-            style={styles.container}
-        >
-            <View style={styles.inputWrapper}>
-                <TextInput
-                    style={styles.input}
-                />
-                <Image style={styles.img} source={SearchLoop} />
-            </View>
+        <SafeAreaView style={styles.SafeAreaView}>
+            <View style={styles.container}>
+                <LinearGradient
+                    colors={['#CCC', '#FFF', '#C8C8C8', '#FFF', '#C4C4C4']}
+                    locations={[0, 0.2292, 0.5208, 0.7813, 1]}
+                    start={[0.5, 0]}
+                    end={[0.5, 1]}
+                    style={styles.LinearGradient}
+                >
+                    <View style={styles.inputWrapper}>
+                        <TextInput
+                            style={styles.input}
+                        />
+                        <Image style={styles.img} source={SearchLoop} />
+                    </View>
 
-            <View style={styles.buttonWrapper}>
-                <LinearGradient
-                    colors={['rgba(183, 151, 90, 0.85)', '#8A6E3E', '#E7C173', '#E7C173', '#8A6E3E']}
-                    locations={[0, 0.0771, 0.4937, 0.7333, 1]}
-                    start={[0, 1]}
-                    end={[0, 0]}
-                    style={styles.gradientButton}
-                >
-                    <Button color='#353535' title="Чат" style={styles.button}></Button>
-                </LinearGradient>
-                <LinearGradient
-                    colors={['rgba(51, 51, 51, 0.85)', '#000', '#333', '#333', '#000']}
-                    locations={[0, 0.0771, 0.4937, 0.749, 1]}
-                    start={[0, 1]}
-                    end={[0, 0]}
-                    style={styles.gradientButton}
-                >
-                    <Button color='#FFFFFF' title="Звонки" style={styles.button}></Button>
+                    <View style={styles.buttonWrapper}>
+                        <LinearGradient
+                            colors={categoryActive === "Чат"
+                            ? ['rgba(183, 151, 90, 0.85)', '#8A6E3E', '#E7C173', '#E7C173', '#8A6E3E']
+                            : ['rgba(51, 51, 51, 0.85)', '#000', '#333', '#333', '#000']
+                            }
+                            locations={categoryActive === "Чат" ? [0, 0.2292, 0.5208, 0.7813, 1] : null}
+                            start={[0, 1]}
+                            end={[0, 0]}
+                            style={styles.gradientButton}
+                        >
+                            <Button color={categoryActive === "Чат" ? '#353535' : '#FFFFFF' } onPress={() => setCategoryActive("Чат")} title="Чат" style={styles.button}></Button>
+                        </LinearGradient>
+                        <LinearGradient
+                            colors={categoryActive === "Звонки"
+                            ? ['rgba(183, 151, 90, 0.85)', '#8A6E3E', '#E7C173', '#E7C173', '#8A6E3E']
+                            : ['rgba(51, 51, 51, 0.85)', '#000', '#333', '#333', '#000'] 
+                            }
+                            locations={categoryActive === "Звонки" ? [0, 0.0771, 0.4937, 0.749, 1] : null}
+                            start={[0, 1]}
+                            end={[0, 0]}
+                            style={styles.gradientButton}
+                        >
+                            <Button color={categoryActive === "Звонки" ? '#353535' : '#FFFFFF' } onPress={() => setCategoryActive("Звонки")} title="Звонки" style={styles.button}></Button>
+                        </LinearGradient>
+                    </View>
                 </LinearGradient>
             </View>
-        </LinearGradient>
+        </SafeAreaView>
     )
 }
 
 const styles = StyleSheet.create({
+    SafeAreaView: {
+        // flex: 1,
+    },
     container: {
-        width: '100%',
+        // flex: 1,
+    },
+    LinearGradient: {
+        // width: '100%',
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
         paddingTop: 10,

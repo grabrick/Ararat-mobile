@@ -4,6 +4,7 @@
     "slug": "ararat-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
+    "apiUri": "https://puzzle.araratchess.ru:8080/api",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {

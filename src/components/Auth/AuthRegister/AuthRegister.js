@@ -1,11 +1,12 @@
 import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, Button } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
+import AxiosInstance from '../../Extra/Axios/AxiosInstance'
 import Logo from '../../../../assets/images/Logo.png'
 import { useState } from "react";
 import axios from 'axios'
 
-export const AuthRegister = ({ onChange }) => {
+export const AuthRegister = ({ swap, onChange }) => {
     const [inputValue, setInputValue] = useState({
         email: '',
         name: '',
@@ -17,7 +18,7 @@ export const AuthRegister = ({ onChange }) => {
     };
 
     const onClickAuth = () => {
-        axios.post(`https://puzzle.araratchess.ru:8080/api/auth/registration`, inputValue)
+        axios.post(`/auth/registration`, inputValue)
             .then(res => {
                 saveAuthToken(res.data)
             })
@@ -28,7 +29,7 @@ export const AuthRegister = ({ onChange }) => {
             const serializedData = JSON.stringify(token);
             console.log(serializedData);
             await SecureStore.setItemAsync('Auth', serializedData);
-            onChange(false)
+            onChange(true)
         } catch (error) {
             console.error('Ошибка при сохранении токена:', error);
         }
@@ -66,7 +67,7 @@ export const AuthRegister = ({ onChange }) => {
                     />
                     <View style={styles.regLinkWrapper}>
                         <Text style={styles.link}>Есть аккаунт</Text>
-                        <Button title="Войти" onPress={() => onChange(false)}></Button>
+                        <Button title="Войти" onPress={() => swap(false)}></Button>
                     </View>
                 </View>
                 <View style={styles.loginWrapper}>

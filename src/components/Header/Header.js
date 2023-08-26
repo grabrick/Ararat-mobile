@@ -20,7 +20,7 @@ export const Header = () => {
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    height: 100,
+    // height: 100,
     // marginTop: 35,
     flexDirection: "row",
     justifyContent: "center",
@@ -34,6 +34,5 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     right: 10,
-    marginTop: 20,
   }
 });

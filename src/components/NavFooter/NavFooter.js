@@ -75,12 +75,13 @@ export const NavFooter = ({onChange, activeElement}) => {
 
 const styles = StyleSheet.create({
     container: {
-        width: '100%',
+        // flex: 1,
+        // width: '100%',
         flexDirection: 'row'
     },
     buttonWrapper: {
         flex: 1,
-        // height: 50,
+        height: 50,
         alignItems: 'center',
         justifyContent: 'center',
         borderLeftColor: 'red',
@@ -101,10 +102,9 @@ const styles = StyleSheet.create({
         borderLeftWidth: 1,
     },
     gradientWrapper: {
-        paddingBottom: 20,
-        marginLeft: 20,
-        marginRight: 20,
-        width: '90%',
+        marginLeft: 10,
+        marginRight: 10,
+        width: '95%',
         flexDirection: 'row',
         alignItems: 'center',
     }
