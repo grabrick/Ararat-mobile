@@ -12,6 +12,16 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "permissions": ["camera"],
+          "cameraPermission": "allow",
+          "microphonePermission": "allow"
+        }
+      ]
+    ],
     "assetBundlePatterns": [
       "**/*"
     ],

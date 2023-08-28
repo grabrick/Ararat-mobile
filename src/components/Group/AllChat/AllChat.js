@@ -10,15 +10,24 @@ import {
 import Archive from '../../../../assets/images/archive_folder.png'
 import { useEffect, useState } from "react";
 import AxiosInstance from '../../Extra/Axios/AxiosInstance'
+// import data from '../../Extra/Data.json'
 import { Labels } from "../../UI/Labels/Labels";
 // import Data from '../../Extra/Catalog.json'
 // import NotFound from '../../../../assets/images/Profile.png'
 
-export const AllChat = ({ authData, setIsActiveChat, setChatID, setIsActiveArchive }) => {
+export const AllChat = ({ 
+        authData, 
+        setIsActiveChat, 
+        setChatID, 
+        setIsActiveArchive, 
+        setContextMenuVisible, 
+        setTouchMessage,
+        setContextConfig
+    }) => {
     const [data, setData] = useState(null)
 
     useEffect(() => {
-        const params = { id: authData?.user._id }
+        const params = { id: authData?.user?._id }
         const config = {
             headers: {
                 Authorization: authData?.refreshToken
@@ -33,8 +42,15 @@ export const AllChat = ({ authData, setIsActiveChat, setChatID, setIsActiveArchi
     }, [])
 
     const moveToChat = (chatId) => {
+        setContextConfig("GroupChat")
         setIsActiveChat(true)
         setChatID(chatId)
+    }
+    const callContextMenu = (item) => {
+        // console.log(item);
+        setContextConfig("Group")
+        setContextMenuVisible(true)
+        setTouchMessage(item)
     }
     return (
         <SafeAreaView style={styles.container}>
@@ -50,14 +66,37 @@ export const AllChat = ({ authData, setIsActiveChat, setChatID, setIsActiveArchi
                 style={styles.flatList}
                 keyExtractor={(item) => item._id}
                 renderItem={({ item }) => (
-                    <TouchableOpacity onPress={() => moveToChat(item._id)} style={styles.chat}>
+                    <TouchableOpacity onLongPress={() => callContextMenu(item)} onPress={() => moveToChat(item._id)} style={styles.chat}>
                         <Image
                             style={styles.chatImage}
                             src={item.avatar}
                         />
                         <View>
                             <Text>{item.name}</Text>
-                            <Text style={styles.lastmsg} numberOfLines={1} ellipsizeMode="tail" >{item.lastmsg.msg}</Text>
+                            {item?.lastmsg?.audio === null && (
+                                <Text 
+                                style={styles.lastmsg} 
+                                numberOfLines={1} 
+                                ellipsizeMode="tail"
+                                >{item?.lastmsg?.msg}</Text>
+                            )}
+                            {item?.lastmsg?.msg.length === 0 && (
+                                <Text 
+                                style={styles.lastmsg} 
+                                numberOfLines={1} 
+                                ellipsizeMode="tail"
+                                >{'Голосовое сообщение'}</Text>
+                            )}
+                            {/* <Text 
+                            style={styles.lastmsg} 
+                            numberOfLines={1} 
+                            ellipsizeMode="tail"
+                            >
+                                {
+                                item?.lastmsg?.msg.length === 0 && 
+                                item?.lastmsg?.audio.length !== 0 && 
+                                'Голосовое сообщение'}
+                            </Text> */}
                         </View>
                     </TouchableOpacity>
                 )}

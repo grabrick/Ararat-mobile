@@ -11,8 +11,12 @@ import GroupActive from '../../../assets/images/groupActive.png';
 import FolderActive from '../../../assets/images/folderActive.png';
 import ChatActive from '../../../assets/images/chatActive.png'
 import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { setActiveButton } from "../../redux/slices/activeBtnSlice";
 
 export const NavFooter = ({onChange, activeElement}) => {
+    const dispatch = useDispatch()
+    const currentButtonData = useSelector(state => state.activeBtnSlice.activeButton)
     const buttonData = [
         { imageSource: Group, isActive: false, activeSource: GroupActive, id: '' },
         { imageSource: Man, isActive: false, activeSource: ManActive, id: '' },
@@ -20,11 +24,11 @@ export const NavFooter = ({onChange, activeElement}) => {
         { imageSource: Chat, isActive: false, activeSource: ChatActive, id: 'chat' },
         { imageSource: Blank, isActive: false, activeSource: BlankActive, id: '' },
     ];
-    const [currentButtonData, setCurrentButtonData] = useState(buttonData);
+
     const handleButtonPress = (index) => {
         const updatedButtonData = [...buttonData];
         updatedButtonData[index].isActive = !updatedButtonData[index].isActive;
-        setCurrentButtonData(updatedButtonData);
+        dispatch(setActiveButton(updatedButtonData))
         onChange(updatedButtonData[index].id)
     };
 

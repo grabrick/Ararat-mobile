@@ -1,0 +1,29 @@
+[
+  {
+    "sname": "Фамилия",
+    "name": "Саша",
+    "lastmsg": {
+      "msg": "Какое-то сообщение",
+      "attachments": [
+        {
+          "name": "filename.md",
+          "type": "file",
+          "url": "http://localhost:8080/uploads/files/1692708778480.353.md"
+        },
+        {
+          "name": "filename.md",
+          "type": "file",
+          "url": "http://localhost:8080/uploads/files/1692708778480.353.md"
+        }
+      ],
+      "from": "64df914b7ecb4329a32dbdcb",
+      "_id": "64e25fb94ae1183395474c70",
+      "time": "2023-08-18T16:34:55.584Z",
+      "to": "64df92c37ecb4329a32dbde7",
+      "audio": "null // если type = audio, то тут ссылка на audio",
+      "type": "text"
+    },
+    "_id": "64e25fb94ae1183395474c70",
+    "avatar": "/avatar.svg"
+  }
+]

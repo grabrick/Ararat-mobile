@@ -1,8 +1,14 @@
 import { Image, View, TextInput, StyleSheet, SafeAreaView, Button } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import SearchLoop from '../../../../assets/images/Search.png'
+import { openedChatCheck } from "../../../redux/slices/contextMenuSlice";
+import { useDispatch } from "react-redux";
 
 export const Search = ({setCategoryActive, categoryActive}) => {
+    const dispatch = useDispatch()
+    const dump = () => {
+        dispatch(openedChatCheck(false))
+    }
     return (
         <SafeAreaView style={styles.SafeAreaView}>
             <View style={styles.container}>
@@ -43,7 +49,7 @@ export const Search = ({setCategoryActive, categoryActive}) => {
                             end={[0, 0]}
                             style={styles.gradientButton}
                         >
-                            <Button color={categoryActive === "Звонки" ? '#353535' : '#FFFFFF' } onPress={() => setCategoryActive("Звонки")} title="Звонки" style={styles.button}></Button>
+                            <Button color={categoryActive === "Звонки" ? '#353535' : '#FFFFFF' } onPress={() => {setCategoryActive("Звонки"); dump()}} title="Звонки" style={styles.button}></Button>
                         </LinearGradient>
                     </View>
                 </LinearGradient>

@@ -3,8 +3,11 @@ import * as SecureStore from 'expo-secure-store';
 import AxiosInstance from '../../Extra/Axios/AxiosInstance'
 import Logo from '../../../../assets/images/Logo.png'
 import { useState } from "react";
+import { setAuth } from "../../../redux/slices/authSlice";
+import { useDispatch } from "react-redux";
 
 export const AuthLogin = ({swap, onChange}) => {
+    const dispatch = useDispatch()
     const [inputValue, setInputValue] = useState({
         email: '',
         password: ''
@@ -30,6 +33,7 @@ export const AuthLogin = ({swap, onChange}) => {
         .then(res => {
             if (res.status === 200) {
                 saveAuthToken(res.data)
+                dispatch(setAuth(res.data))
             }
         }).catch(e => {
             console.error(e)
@@ -83,7 +87,7 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         alignItems: 'center',
         width: '100%',
-        height: 750,
+        height: 600,
     },
     button: {
         backgroundColor: 'white',
