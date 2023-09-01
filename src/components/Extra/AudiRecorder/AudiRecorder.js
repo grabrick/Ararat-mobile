@@ -8,12 +8,12 @@ export const startRecording = async () => {
       if (status !== 'granted') {
         throw new Error('Нет разрешения на использование микрофона');
       }
-
-    //   if (audioRecording) {
-    //     await audioRecording.stopAndUnloadAsync();
-    //     audioRecording = null;
-    //   }
-  
+      
+      if (audioRecording) {
+        await audioRecording.stopAndUnloadAsync();
+        audioRecording = null;
+      }
+      
       audioRecording = new Audio.Recording();
       await Audio.requestPermissionsAsync();
       await Audio.setAudioModeAsync({

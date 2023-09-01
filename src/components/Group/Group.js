@@ -14,11 +14,13 @@ export const Group = ({
         setContextMenuVisible, 
         setTouchMessage, 
         setContextConfig,
+        navigation,
     }) => {
     const [isActiveChat, setIsActiveChat] = useState()
     const [chatID, setChatID] = useState(null)
     const [isActiveArchive, setIsActiveArchive] = useState(false)
     const [isActiveKeyboard, setIsActiveKeyoard] = useState()
+    // const isActiveKeyboard = useSelector(state => state.otherFuncSlice.isActiveKeyboard)
     const [categoryActive, setCategoryActive] = useState("Чат")
     const state = useSelector(state => state.contextMenuSlice)
 
@@ -26,34 +28,19 @@ export const Group = ({
         if(state.openedChat === true) {
             setIsActiveChat(true)
         } 
-    }, [])
-
-    // useEffect(() => {
-    //     console.log(Keyboard.isVisible());
-    // }, [Keyboard.isVisible()])
+    }, [state.openedChat])
     
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.wrapper}>
-                {isActiveKeyboard ? null : <Search categoryActive={categoryActive} setCategoryActive={setCategoryActive} />}
                 {isActiveArchive ? (
-                    <Archive setIsActiveArchive={setIsActiveArchive} />
+                    <Archive navigation={navigation} setIsActiveArchive={setIsActiveArchive} />
                 ) : (
                     <>
                         {categoryActive === "Чат" ? (
                             <>
-                                {isActiveChat ? (
-                                    <CurrentChat
-                                        authData={authData}
-                                        chatID={chatID}
-                                        setIsActiveChat={setIsActiveChat}
-                                        setContextMenuVisible={setContextMenuVisible}
-                                        setTouchMessage={setTouchMessage}
-                                        setContextConfig={setContextConfig}
-                                        setIsActiveKeyoard={setIsActiveKeyoard}
-                                    />
-                                ) : (
                                     <AllChat
+                                        navigation={navigation}
                                         setIsActiveArchive={setIsActiveArchive}
                                         setIsActiveChat={setIsActiveChat}
                                         setContextMenuVisible={setContextMenuVisible}
@@ -61,12 +48,13 @@ export const Group = ({
                                         setChatID={setChatID}
                                         authData={authData}
                                         setContextConfig={setContextConfig}
+                                        categoryActive={categoryActive}
+                                        setCategoryActive={setCategoryActive}
                                     />
-                                )}
                             </>
                         ) : (
                             <>
-                                <AllAudioChat />
+                                <AllAudioChat categoryActive={categoryActive} setCategoryActive={setCategoryActive} />
                             </>
                         )}
                     </>

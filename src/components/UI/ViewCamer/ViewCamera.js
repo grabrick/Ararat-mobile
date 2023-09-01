@@ -7,11 +7,11 @@ import {
 } from "react-native";
 import backWhite from '../../../../assets/images/backWhite.png'
 import { useDispatch } from 'react-redux';
-import { cameraVisible } from '../../../redux/slices/cameraSlice';
+import { cameraVisible, setCameraImg } from '../../../redux/slices/cameraSlice';
 import { useState } from 'react';
 import { openedChatCheck } from '../../../redux/slices/contextMenuSlice';
 
-export const ViewCamera = () => {
+export const ViewCamera = ({ navigation}) => {
     let cameraRef = null;
     const [photoUri, setPhotoUri] = useState(null);
     const [isPhotoTaken, setIsPhotoTaken] = useState(false);
@@ -25,9 +25,13 @@ export const ViewCamera = () => {
     const handleTakePhoto = async () => {
         if (cameraRef) {
             const { uri } = await cameraRef.takePictureAsync();
-            console.log(uri);
-            // setPhotoUri(uri);
-            // setIsPhotoTaken(true);
+            dispatch(setCameraImg(uri))
+            setPhotoUri(uri);
+            setIsPhotoTaken(true);
+
+            if(uri) {
+                navigation.goBack()
+            }
         }
     }
 
@@ -36,20 +40,20 @@ export const ViewCamera = () => {
             <Camera
                 style={styles.camera}
                 ref={(ref) => (cameraRef = ref)}
-                type={Camera.Constants.Type.back} // Установите тип камеры (back или front)
+                type={Camera.Constants.Type.back} // тип камеры (back или front)
             />
             <View style={styles.buttonContainer}>
                 <TouchableOpacity
                     style={styles.button}
                     onPress={handleTakePhoto}
                 ></TouchableOpacity>
-                <TouchableOpacity style={styles.img} onPress={() => handleCloseCamera()}>
+                <TouchableOpacity style={styles.img} onPress={() => navigation.goBack()}>
                     <Image source={backWhite} />
                 </TouchableOpacity>
             </View>
             {isPhotoTaken && (
                 <Image
-                    source={{ uri: photoUri }}
+                    src={photoUri}
                     style={styles.previewImage}
                 />
             )}
@@ -88,7 +92,7 @@ const styles = StyleSheet.create({
         width: 60,
         height: 60,
         backgroundColor: 'transparent',
-        borderColor: 'white',
+        borderColor: 'black',
         borderWidth: 2,
         borderRadius: 50,
     },

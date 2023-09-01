@@ -1,7 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-    isCameraVisible: false
+  isCameraVisible: false,
+  image: ''
 };
 
 const cameraSlice = createSlice({
@@ -10,9 +11,12 @@ const cameraSlice = createSlice({
   reducers: {
     cameraVisible: (state, action) => {
       state.isCameraVisible = action.payload
+    },
+    setCameraImg: (state, action) => {
+      state.image = action.payload
     }
   },
 });
 
-export const { cameraVisible } = cameraSlice.actions;
+export const { cameraVisible, setCameraImg } = cameraSlice.actions;
 export default cameraSlice.reducer;

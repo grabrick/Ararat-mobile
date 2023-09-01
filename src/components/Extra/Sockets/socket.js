@@ -1,3 +1,3 @@
 import * as io from "socket.io-client";
 
-export const socket = io.connect("http://localhost:8089");
+export const socket = io.connect("https://puzzle.araratchess.ru:8080");

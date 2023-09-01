@@ -27,7 +27,6 @@ export const AuthRegister = ({ swap, onChange }) => {
     const saveAuthToken = async (token) => {
         try {
             const serializedData = JSON.stringify(token);
-            console.log(serializedData);
             await SecureStore.setItemAsync('Auth', serializedData);
             onChange(true)
         } catch (error) {
@@ -114,7 +113,6 @@ const styles = StyleSheet.create({
     },
     text: {
         color: '#000',
-        fontWeight: 600,
         fontSize: 17
     },
     formInput: {

@@ -1,10 +1,10 @@
-import { View, Image, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Image, StyleSheet, TouchableOpacity, Platform } from "react-native";
 import Logo from '../../../assets/images/Logo.png'
 import Profile from '../../../assets/images/Profile.png'
 
 export const Header = () => {
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, Platform.OS === 'android' && {marginTop: 40}]}>
       <View style={styles.imgWrapper}>
         <Image
           source={Logo}
@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
   },
   img: {
     position: 'absolute',
-    top: 0,
+    top: 6,
     right: 10,
   }
 });

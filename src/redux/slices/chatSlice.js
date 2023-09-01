@@ -2,7 +2,8 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-    data: null
+  data: null,
+  chatId: null
 };
 
 const chatSlice = createSlice({
@@ -10,10 +11,13 @@ const chatSlice = createSlice({
   initialState,
   reducers: {
     chatData: (state, action) => {
-      state.isCameraVisible = action.payload
+      state.data = action.payload
+    },
+    getChatId: (state, action) => {
+      state.chatId = action.payload
     }
   },
 });
 
-export const { chatData } = chatSlice.actions;
+export const { chatData, getChatId } = chatSlice.actions;
 export default chatSlice.reducer;

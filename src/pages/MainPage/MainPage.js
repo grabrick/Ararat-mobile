@@ -1,4 +1,4 @@
-import { StyleSheet, Platform, StatusBar, View, Text, SafeAreaView } from 'react-native';
+import { StyleSheet, Platform, StatusBar, View, Text, SafeAreaView, Keyboard } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import { Header } from '../../components/Header/Header';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -19,11 +19,12 @@ import { setAuth } from '../../redux/slices/authSlice';
 // grabrick@mail.ru   62xs_vqfHZNrZCJ
 
 
-export default function MainPage() {
+export default function MainPage({ navigation }) {
   const [activeElement, setActiveElement] = useState('');
   const [isReg, setIsReg] = useState(false);
   const [isAuth, setIsAuth] = useState(true); // Временно поменял на true
   const isCameraVisible = useSelector(state => state.cameraSlice.isCameraVisible)
+  const state = useSelector(state => state.contextMenuSlice)
   const authData = useSelector(state => state.authSlice.authData)
   const dispatch = useDispatch()
 
@@ -61,8 +62,6 @@ export default function MainPage() {
     }
   }
 
-
-
   useEffect(() => {
     // SecureStore.deleteItemAsync('Auth', {})
     const checkAuth = async () => {
@@ -94,7 +93,6 @@ export default function MainPage() {
   }, [socket])
 
   useEffect(() => {
-    // console.log(authData);
     if (authData && authData.refreshToken) {
       const config = {
         headers: {
@@ -109,79 +107,75 @@ export default function MainPage() {
       }).catch(() => {
         SecureStore.deleteItemAsync('Auth', {})
         console.log("Logout");
+        setIsReg(false)
       })
     }
-  }, [authData])
+  }, [authData, isReg])
 
   return (
-      <LinearGradient
-        style={styles.container}
-        colors={['#000', '#0D0D0D', '#333333']}
-        start={[0.7, 0]}
-        end={[0, 0]}
-      >
-        <StatusBar
-          translucent
-          backgroundColor="#61dafb"
-          barStyle='light-content'
-        />
-        
-        <SafeAreaView style={styles.SafeAreaView}>
-          {isCameraVisible ? (
-            <ViewCamera />
-          ) : (
-            <>
-              {contextMenuVisible ? (
-                <ContextChatMenu
-                  touchMessage={touchMessage}
-                  contextMenuVisible={contextMenuVisible}
-                  setTouchMessage={setTouchMessage}
-                  setContextMenuVisible={setContextMenuVisible}
-                  contextConfig={contextConfig}
-                  authData={authData}
-                />
-              ) : (
+    <LinearGradient
+      style={styles.container}
+      colors={['#000', '#0D0D0D', '#333333']}
+      start={[0.7, 0]}
+      end={[0, 0]}
+    >
+      <StatusBar
+        translucent
+        barStyle='light-content'
+      />
+
+      <SafeAreaView style={styles.SafeAreaView}>
+        {isCameraVisible ? (
+          <ViewCamera />
+        ) : (
+          <>
+            {isAuth && <Header />}
+            <View style={styles.wrapper}>
+              {isAuth ? (
                 <>
-                  {isAuth && <Header />}
-                  <View style={styles.wrapper}>
-                    {isAuth ? (
-                      <>
-                        {(() => {
-                          switch (activeElement) {
-                            case 'chat':
-                              return (
-                                <>
-                                  <Group
-                                    authData={authData}
-                                    setContextMenuVisible={setContextMenuVisible}
-                                    setTouchMessage={setTouchMessage}
-                                    setContextConfig={setContextConfig}
-                                  />
-                                </>
-                              )
-                            case '':
-                              return (
-                                  <View style={styles.infoWrapper}>
-                                    <Text style={styles.info}>Данный раздел пока не доступен для использования</Text>
-                                  </View>
-                              )
-                            default:
-                              return null
-                          }
-                        })()}
-                      </>
-                    ) : (
-                      // ""
-                      isReg ? <AuthRegister swap={setIsReg} onChange={setIsAuth} /> : <AuthLogin swap={setIsReg} onChange={setIsAuth} />
-                    )}
-                  </View>
-                  {isAuth && <NavFooter onChange={handleElementChange} activeElement={activeElement} />}
+                  {(() => {
+                    switch (activeElement) {
+                      case 'chat':
+                        return (
+                          <>
+                            <Group
+                              authData={authData}
+                              setContextMenuVisible={setContextMenuVisible}
+                              setTouchMessage={setTouchMessage}
+                              setContextConfig={setContextConfig}
+                              navigation={navigation}
+                            />
+                          </>
+                        )
+                      case '':
+                        return (
+                          <View style={styles.infoWrapper}>
+                            <Text style={styles.info}>
+                              Дорогие родители.
+                              На данный момент все разделы портала работают в веб версии.
+
+                              Ориентировочно До 01.10.2023 все разделы должны быть готовы и в мобильной версии.
+                              Последвотельно, можно будет на урок прийти с телефона. (напоминаем, что не советуем прийти с телефона на урок, предпочтительнее планшет или ноутбук)
+
+                              А пока для вашего удобства в данной мобильной версии работает раздел Чат - МЕСЕНДЖЕР.
+                            </Text>
+                          </View>
+                        )
+                      default:
+                        return null
+                    }
+                  })()}
                 </>
+              ) : (
+                // ""
+                isReg ? <AuthRegister swap={setIsReg} onChange={setIsAuth} /> : <AuthLogin swap={setIsReg} onChange={setIsAuth} />
               )}
-            </>
-          )}
-        </SafeAreaView>
-      </LinearGradient>
+            </View>
+            {isAuth && <NavFooter navigation={navigation} onChange={handleElementChange} activeElement={activeElement} />}
+          </>
+        )}
+      </SafeAreaView>
+    </LinearGradient>
   );
 }
 
@@ -208,6 +202,7 @@ const styles = StyleSheet.create({
   },
   info: {
     color: '#fff',
+    textAlign: 'center',
     fontSize: 18,
   },
 });

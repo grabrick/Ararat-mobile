@@ -4,6 +4,9 @@ import cameraSlice from './slices/cameraSlice'
 import authSlice from './slices/authSlice'
 import activeBtnSlice from './slices/activeBtnSlice'
 import chatSlice from './slices/chatSlice'
+import otherFuncSlice from './slices/otherFuncSlice';
+import searchSlice from './slices/searchSlice'
+import groupSlice from './slices/groupSlice'
 
 const store = configureStore({
   reducer: {
@@ -11,7 +14,10 @@ const store = configureStore({
     cameraSlice,
     authSlice,
     activeBtnSlice,
-    chatSlice
+    chatSlice,
+    otherFuncSlice,
+    searchSlice,
+    groupSlice
   },
 });
 

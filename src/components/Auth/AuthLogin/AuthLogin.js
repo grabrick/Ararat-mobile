@@ -39,6 +39,19 @@ export const AuthLogin = ({swap, onChange}) => {
             console.error(e)
         })
     }
+
+    const onClickAuthLiches = () => {
+        AxiosInstance.get(`/auth/login_lichess`)
+        .then(res => {
+            console.log(res);
+            if (res.status === 200) {
+                saveAuthToken(res.data)
+                dispatch(setAuth(res.data))
+            }
+        }).catch(e => {
+            console.error(e)
+        })
+    }
     return (
         <View style={styles.container}>
             <View style={styles.wrapper}>
@@ -68,6 +81,13 @@ export const AuthLogin = ({swap, onChange}) => {
                         onPress={() => onClickAuth()}
                     >
                         <Text style={styles.text}>Войти</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                        style={styles.button}
+                        onPress={() => onClickAuthLiches()}
+                    >   
+                        {/* <Image source={} /> */}
+                        <Text style={styles.text}>Lichess</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -107,7 +127,6 @@ const styles = StyleSheet.create({
     },
     text: {
         color: '#000',
-        fontWeight: 600,
         fontSize: 17
     },
     formInput: {
@@ -122,6 +141,7 @@ const styles = StyleSheet.create({
         width: 300
     },
     loginWrapper: {
-
+        flexDirection: 'row',
+        gap: 10,
     }
 });

@@ -24,22 +24,17 @@ import ReplyWhite from '../../../../assets/images/replyWhite.png'
 import AxiosInstance from '../../Extra/Axios/AxiosInstance'
 import { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
-import { openedChatCheck, updateData } from "../../../redux/slices/contextMenuSlice"
+import { openedChatCheck, setConfig, updateData } from "../../../redux/slices/contextMenuSlice"
 import * as Clipboard from 'expo-clipboard';
+import { fetchAuthData } from "../../Extra/FetchAuthData/FetchAuthData"
 
 
-export const ContextChatMenu = ({
-    contextMenuVisible,
-    touchMessage,
-    setTouchMessage,
-    setContextMenuVisible,
-    contextConfig,
-    authData,
-}) => {
+export const ContextChatMenu = ({ navigation }) => {
     const state = useSelector(state => state.contextMenuSlice)
     const [isActiveChangeMsg, setIsActiveChangeMsg] = useState(false)
     const [isActiveReplyMsg, setIsActiveReplyMsg] = useState(false)
     const [audioPath, setAudioPath] = useState('');
+    const [authData, setAuthData] = useState()
     const [selectedImage, setSelectedImage] = useState(null);
     const [inputValue, setInputValue] = useState({
         msg: '',
@@ -49,38 +44,37 @@ export const ContextChatMenu = ({
         setInputValue({ ...inputValue, [name]: value });
     };
 
-
-    const handleOverlayPress = () => {
-        if (state.openedChat === true) {
-            dispatch(openedChatCheck(true))
-        }
-        setContextMenuVisible(false);
-        setTouchMessage(null)
-    };
-
     const copyToClipboard = () => {
-        Clipboard.setStringAsync(touchMessage.msg)
+        Clipboard.setStringAsync(state.touchMessage.msg)
 
         // Вывод уведомления на iOS
         if (Platform.OS === 'ios') {
             Alert.alert(
                 'Текст скопирован',
                 'Текст был скопирован в буфер обмена',
-                [{ text: 'OK', onPress: () => handleOverlayPress() }],
+                [{ text: 'OK', onPress: () => navigation.goBack() }],
                 { cancelable: false }
             );
         } else if (Platform.OS === 'android') {
             // Вывод уведомления на Android
             ToastAndroid.show('Текст скопирован в буфер обмена', ToastAndroid.SHORT);
-            handleOverlayPress()
+            navigation.goBack()
         }
     };
 
     useEffect(() => {
-        if (isActiveChangeMsg) {
-            setInputValue({ ...inputValue, msg: touchMessage?.msg });
+        const fetchData = async () => {
+            const auth = await fetchAuthData()
+            setAuthData(auth)
         }
-    }, [isActiveChangeMsg, touchMessage?.msg]);
+        fetchData()
+    }, [])
+
+    useEffect(() => {
+        if (isActiveChangeMsg) {
+            setInputValue({ ...inputValue, msg: state.touchMessage?.msg });
+        }
+    }, [isActiveChangeMsg, state.touchMessage?.msg]);
 
     const editMessage = () => {
         const msg_id = 'msg_id';
@@ -88,15 +82,14 @@ export const ContextChatMenu = ({
         const files = 'files';
         const formData = new FormData();
         formData.append(msg, inputValue.msg);
-        formData.append(msg_id, touchMessage._id);
+        formData.append(msg_id, state.touchMessage._id);
         formData.append(files, audioPath || selectedImage);
         const formParts = formData._parts.map((part) => [part[0], part[1]]);
         const msgValue = formParts.find((part) => part[0] === msg)[1];
         const msgIdValue = formParts.find((part) => part[0] === msg_id)[1];
         const filesValue = formParts.find((part) => part[0] === files)[1];
 
-
-        if (touchMessage?.msg === inputValue.msg) {
+        if (state.touchMessage?.msg === inputValue.msg) {
             setIsActiveChangeMsg(false)
         } else {
             AxiosInstance.put('/dialog/sendMessage', { msg_id: msgIdValue, msg: msgValue, files: filesValue })
@@ -110,6 +103,8 @@ export const ContextChatMenu = ({
                         })
                         // dispatch(updateData({ chat: res.data, chatId: chatID }))
                     }
+                }).catch(e => {
+                    console.log(e);
                 })
         }
     }
@@ -148,8 +143,8 @@ export const ContextChatMenu = ({
     }
 
     const handleMenuItemPress = (trigger) => {
-        if (contextConfig === "CurrentChat") {
-            if (authData.user._id === touchMessage.from._id) {
+        if (state.contextConfig === "CurrentChat") {
+            if (authData.user._id === state.touchMessage.from._id) {
                 switch (trigger) {
                     case "Редактировать":
                         return (
@@ -218,92 +213,92 @@ export const ContextChatMenu = ({
     }
     return (
         <>
-            {contextConfig === "CurrentChat" ? (
-                <TouchableWithoutFeedback onPress={() => handleOverlayPress()}>
-                    <View style={styles.container}>
-                        <View style={styles.touchWrapper}>
-                            <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
-                                <View style={styles.touchMsg}>
-                                    {isActiveChangeMsg && (
-                                        <>
-                                            <Text style={styles.title}>{touchMessage?.from?.name}{" "}{touchMessage?.from?.sname}</Text>
-                                            <TextInput
-                                                // style={styles.input}
-                                                placeholder="Сообщение"
-                                                value={inputValue.msg}
-                                                multiline={true}
-                                                numberOfLines={4}
-                                                onChangeText={(text) => handleInputChange('msg', text)}
-                                            />
-                                            {inputValue.msg.length === 0
-                                                ? <Text style={{
-                                                    color: '#e04b5a',
-                                                    fontSize: 12,
-                                                    marginTop: 2,
-                                                    marginBottom: 2,
-                                                }}
-                                                >
-                                                    Поле должно быть заполнено
-                                                </Text>
-                                                : null
-                                            }
-                                            <Button
-                                                onPress={() => editMessage()}
-                                                disabled={inputValue.msg.length === 0 && true}
-                                                title="Сохранить"
-                                            ></Button>
-                                        </>
-                                    )}
-                                    {isActiveReplyMsg || isActiveChangeMsg ? (
-                                        <View style={{ display: 'none' }}>
-                                            <Text style={styles.title}>{touchMessage?.from?.name}{" "}{touchMessage?.from?.sname}</Text>
-                                            <Text>{touchMessage?.msg}</Text>
-                                        </View>
-                                    ) : (
-                                        <>
-                                            <Text style={styles.title}>{touchMessage?.from?.name}{" "}{touchMessage?.from?.sname}</Text>
-                                            <Text>{touchMessage?.msg}</Text>
-                                        </>
-                                    )}
-                                    {isActiveReplyMsg && (
-                                        <>
-                                            <View style={{ backgroundColor: '#868686', padding: 5, borderRadius: 5 }}>
-                                                <View style={{ borderLeftWidth: 2, borderLeftColor: '#fff', paddingLeft: 5 }}>
-                                                    <Text style={styles.smallTitle}>{touchMessage?.from?.name}{" "}{touchMessage?.from?.sname}</Text>
-                                                    <Text>{touchMessage?.msg}</Text>
-                                                </View>
+            {state.contextConfig === "CurrentChat" ? (
+                <View style={styles.container}>
+                    <View style={styles.touchWrapper}>
+                        <>
+                            <View style={styles.touchMsg}>
+                                {isActiveChangeMsg && (
+                                    <>
+                                        <Text style={styles.title}>{state.touchMessage?.from?.name}{" "}{state.touchMessage?.from?.sname}</Text>
+                                        <TextInput
+                                            // style={styles.input}
+                                            placeholder="Сообщение"
+                                            value={inputValue.msg}
+                                            multiline={true}
+                                            numberOfLines={4}
+                                            onChangeText={(text) => handleInputChange('msg', text)}
+                                        />
+                                        {inputValue.msg.length === 0
+                                            ? <Text style={{
+                                                color: '#e04b5a',
+                                                fontSize: 12,
+                                                marginTop: 2,
+                                                marginBottom: 2,
+                                            }}
+                                            >
+                                                Поле должно быть заполнено
+                                            </Text>
+                                            : null
+                                        }
+                                        <Button
+                                            onPress={() => editMessage()}
+                                            disabled={inputValue.msg.length === 0 && true}
+                                            title="Сохранить"
+                                        ></Button>
+                                    </>
+                                )}
+                                {isActiveReplyMsg || isActiveChangeMsg ? (
+                                    <View style={{ display: 'none' }}>
+                                        <Text style={styles.title}>{state.touchMessage?.from?.name}{" "}{state.touchMessage?.from?.sname}</Text>
+                                        <Text>{state.touchMessage?.msg}</Text>
+                                    </View>
+                                ) : (
+                                    <>
+                                        <Text style={styles.title}>{state.touchMessage?.from?.name}{" "}{state.touchMessage?.from?.sname}</Text>
+                                        <Text>{state.touchMessage?.msg}</Text>
+                                    </>
+                                )}
+                                {isActiveReplyMsg && (
+                                    <>
+                                        <View style={{ backgroundColor: '#868686', padding: 5, borderRadius: 5 }}>
+                                            <View style={{ borderLeftWidth: 2, borderLeftColor: '#fff', paddingLeft: 5 }}>
+                                                <Text style={styles.smallTitle}>{state.touchMessage?.from?.name}{" "}{state.touchMessage?.from?.sname}</Text>
+                                                <Text>{state.touchMessage?.msg}</Text>
                                             </View>
-                                            <TextInput
-                                                style={styles.input}
-                                                placeholder="Сообщение"
-                                                value={inputValue.msg}
-                                                multiline={true}
-                                                numberOfLines={4}
-                                                onChangeText={(text) => handleInputChange('msg', text)}
-                                            />
-                                            {inputValue.msg.length === 0
-                                                ? <Text style={{
-                                                    color: '#e04b5a',
-                                                    fontSize: 12,
-                                                    marginTop: 2,
-                                                    marginBottom: 2,
-                                                }}
-                                                >
-                                                    Поле должно быть заполнено
-                                                </Text>
-                                                : null
-                                            }
+                                        </View>
+                                        <TextInput
+                                            style={styles.input}
+                                            placeholder="Сообщение"
+                                            value={inputValue.msg}
+                                            multiline={true}
+                                            numberOfLines={4}
+                                            onChangeText={(text) => handleInputChange('msg', text)}
+                                        />
+                                        {inputValue.msg.length === 0
+                                            ? <Text style={{
+                                                color: '#e04b5a',
+                                                fontSize: 12,
+                                                marginTop: 2,
+                                                marginBottom: 2,
+                                            }}
+                                            >
+                                                Поле должно быть заполнено
+                                            </Text>
+                                            : null
+                                        }
 
-                                            <Button onPress={() => onClickReply()} disabled={inputValue?.msg?.length === 0 && true} title="Отправить"></Button>
-                                        </>
-                                    )}
-                                </View>
-                            </TouchableWithoutFeedback>
-                        </View>
-                        {contextMenuVisible && (
-                            <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
-                                {authData?.user?._id === touchMessage?.from?._id ? (
+                                        <Button onPress={() => onClickReply()} disabled={inputValue?.msg?.length === 0 && true} title="Отправить"></Button>
+                                    </>
+                                )}
+                            </View>
+                        </>
+                    </View>
+                    {state.isVisibleMenu && (
+                        <>
+                            {authData?.user?._id === state.touchMessage?.from?._id ? (
                                     <View style={styles.contextMenu}>
+                                    {authData?.user?.role === "DIRECTOR" && (
                                         <TouchableOpacity
                                             style={isActiveChangeMsg
                                                 ? styles.activeButtonWrapper
@@ -314,6 +309,7 @@ export const ContextChatMenu = ({
                                             <Image style={styles.icon} source={isActiveChangeMsg ? EditWhite : Edit} />
                                             <Text style={isActiveChangeMsg ? styles.activeText : null} >Редактировать</Text>
                                         </TouchableOpacity>
+                                    )}
                                         <TouchableOpacity style={styles.buttonWrapper} onPress={() => handleMenuItemPress('Переслать сообщение')}>
                                             <Image style={styles.icon} source={Forward} />
                                             <Text>Переслать сообщение</Text>
@@ -323,85 +319,82 @@ export const ContextChatMenu = ({
                                             <Text>Скопировать</Text>
                                         </TouchableOpacity>
                                     </View>
-                                ) : (
-                                    <View style={styles.contextMenu}>
-                                        <TouchableOpacity style={isActiveReplyMsg
-                                            ? styles.activeButtonWrapper
-                                            : styles.buttonWrapper
-                                        }
-                                            onPress={() => handleMenuItemPress('Ответить')}>
-                                            <Image style={styles.icon} source={isActiveReplyMsg ? ReplyWhite : Reply} />
-                                            <Text style={isActiveReplyMsg ? styles.activeText : null} >Ответить</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity style={styles.buttonWrapper} onPress={() => handleMenuItemPress('Отреагировать')}>
-                                            <Image style={styles.icon} source={Smile} />
-                                            <Text>Отреагировать</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity style={styles.buttonWrapper} onPress={() => handleMenuItemPress('Переслать сообщение')}>
-                                            <Image style={styles.icon} source={Forward} />
-                                            <Text>Переслать сообщение</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity style={styles.buttonWrapper} onPress={() => handleMenuItemPress('Скопировать')}>
-                                            <Image style={styles.icon} source={Copy} />
-                                            <Text>Скопировать</Text>
-                                        </TouchableOpacity>
-                                    </View>
-                                )}
-                            </TouchableWithoutFeedback>
-                        )}
-                    </View>
-                </TouchableWithoutFeedback>
-            ) : (
-                <TouchableWithoutFeedback onPress={() => handleOverlayPress()}>
-                    <View style={styles.container}>
-                        <View style={styles.touchWrapper}>
-                            <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
-                                <View style={styles.groupTouchMsg}>
-                                    <Image style={styles.img} src={touchMessage?.avatar}></Image>
-                                    <View style={styles.nameWrapper}>
-                                        <Text style={styles.title}>{touchMessage?.name}{" "}{touchMessage?.sname}</Text>
-                                        {touchMessage?.lastmsg?.audio === null && (
-                                            <Text
-                                                style={styles.lastmsg}
-                                                numberOfLines={1}
-                                                ellipsizeMode="tail"
-                                            >{touchMessage?.lastmsg?.msg}</Text>
-                                        )}
-                                        {touchMessage?.lastmsg?.msg.length === 0 && (
-                                            <Text
-                                                style={styles.lastmsg}
-                                                numberOfLines={1}
-                                                ellipsizeMode="tail"
-                                            >{'Голосовое сообщение'}</Text>
-                                        )}
-                                    </View>
-                                </View>
-                            </TouchableWithoutFeedback>
-                        </View>
-                        {contextMenuVisible && (
-                            <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
+                            ) : (
                                 <View style={styles.contextMenu}>
-                                    <TouchableOpacity style={styles.buttonWrapper} onPress={() => handleMenuItemPress('Добавить тег')}>
-                                        <Image style={styles.icon} source={Mark} />
-                                        <Text>Добавить тег</Text>
+                                    <TouchableOpacity style={isActiveReplyMsg
+                                        ? styles.activeButtonWrapper
+                                        : styles.buttonWrapper
+                                    }
+                                        onPress={() => handleMenuItemPress('Ответить')}>
+                                        <Image style={styles.icon} source={isActiveReplyMsg ? ReplyWhite : Reply} />
+                                        <Text style={isActiveReplyMsg ? styles.activeText : null} >Ответить</Text>
                                     </TouchableOpacity>
-                                    <TouchableOpacity style={styles.buttonWrapper} onPress={() => handleMenuItemPress('Архив')}>
-                                        <Image style={styles.icon} source={Archive} />
-                                        <Text>Архив</Text>
+                                    <TouchableOpacity style={styles.buttonWrapper} onPress={() => handleMenuItemPress('Отреагировать')}>
+                                        <Image style={styles.icon} source={Smile} />
+                                        <Text>Отреагировать</Text>
                                     </TouchableOpacity>
-                                    <TouchableOpacity style={styles.buttonWrapper} onPress={() => handleMenuItemPress('Закрепить')}>
-                                        <Image style={styles.icon} source={Pin} />
-                                        <Text>Закрепить</Text>
+                                    <TouchableOpacity style={styles.buttonWrapper} onPress={() => handleMenuItemPress('Переслать сообщение')}>
+                                        <Image style={styles.icon} source={Forward} />
+                                        <Text>Переслать сообщение</Text>
                                     </TouchableOpacity>
-                                    <TouchableOpacity style={styles.buttonWrapper} onPress={() => handleMenuItemPress('Заглушить')}>
-                                        <Image style={styles.icon} source={IsSound} />
-                                        <Text>Заглушить</Text>
+                                    <TouchableOpacity style={styles.buttonWrapper} onPress={() => handleMenuItemPress('Скопировать')}>
+                                        <Image style={styles.icon} source={Copy} />
+                                        <Text>Скопировать</Text>
                                     </TouchableOpacity>
                                 </View>
-                            </TouchableWithoutFeedback>
-                        )}
+                            )}
+                        </>
+                    )}
+                </View>
+            ) : (
+                <View style={styles.container}>
+                    <View style={styles.touchWrapper}>
+                        <>
+                            <View style={styles.groupTouchMsg}>
+                                <Image style={styles.img} src={state.touchMessage?.avatar}></Image>
+                                <View style={styles.nameWrapper}>
+                                    <Text style={styles.title}>{state.touchMessage?.name}{" "}{state.touchMessage?.sname}</Text>
+                                    {state.touchMessage?.lastmsg?.audio === null && (
+                                        <Text
+                                            style={styles.lastmsg}
+                                            numberOfLines={1}
+                                            ellipsizeMode="tail"
+                                        >{state.touchMessage?.lastmsg?.msg}</Text>
+                                    )}
+                                    {state.touchMessage?.lastmsg?.msg.length === 0 && (
+                                        <Text
+                                            style={styles.lastmsg}
+                                            numberOfLines={1}
+                                            ellipsizeMode="tail"
+                                        >{'Голосовое сообщение'}</Text>
+                                    )}
+                                </View>
+                            </View>
+                        </>
                     </View>
-                </TouchableWithoutFeedback>
+                    {state.isVisibleMenu && (
+                        <>
+                            <View style={styles.contextMenu}>
+                                <TouchableOpacity style={styles.buttonWrapper} onPress={() => handleMenuItemPress('Добавить тег')}>
+                                    <Image style={styles.icon} source={Mark} />
+                                    <Text>Добавить тег</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.buttonWrapper} onPress={() => handleMenuItemPress('Архив')}>
+                                    <Image style={styles.icon} source={Archive} />
+                                    <Text>Архив</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.buttonWrapper} onPress={() => handleMenuItemPress('Закрепить')}>
+                                    <Image style={styles.icon} source={Pin} />
+                                    <Text>Закрепить</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.buttonWrapper} onPress={() => handleMenuItemPress('Заглушить')}>
+                                    <Image style={styles.icon} source={IsSound} />
+                                    <Text>Заглушить</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </>
+                    )}
+                </View>
             )}
         </>
     )

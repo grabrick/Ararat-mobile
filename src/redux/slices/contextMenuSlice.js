@@ -4,7 +4,10 @@ const initialState = {
   data: [],
   chatId: null,
   openedChat: false,
-  reply: null
+  contextConfig: null,
+  isVisibleMenu: false,
+  touchMessage: null,
+  reply: null,
 };
 
 const contextMenuSlice = createSlice({
@@ -16,11 +19,18 @@ const contextMenuSlice = createSlice({
       state.data = data.chat;
       state.chatId = data.chatId;
     },
+    setConfig: (state, action) => {
+      const data = action.payload;
+      // console.log(data);
+      state.contextConfig = data.contextConfig;
+      state.isVisibleMenu = data.isVisibleMenu;
+      state.touchMessage = data.touchMessage;
+    },
     openedChatCheck: (state, action) => {
       state.openedChat = action.payload
-    }
+    },
   },
 });
 
-export const { updateData, openedChatCheck } = contextMenuSlice.actions;
+export const { updateData, openedChatCheck, setConfig } = contextMenuSlice.actions;
 export default contextMenuSlice.reducer;

@@ -1,4 +1,11 @@
-import { Image, View, StyleSheet, TouchableOpacity } from "react-native";
+import {
+    Image,
+    View, 
+    StyleSheet, 
+    TouchableOpacity, 
+    Platform,
+    Keyboard,
+} from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import Man from '../../../assets/images/Man.png';
 import Blank from '../../../assets/images/blank.png';
@@ -10,13 +17,14 @@ import BlankActive from '../../../assets/images/blankActive.png';
 import GroupActive from '../../../assets/images/groupActive.png';
 import FolderActive from '../../../assets/images/folderActive.png';
 import ChatActive from '../../../assets/images/chatActive.png'
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setActiveButton } from "../../redux/slices/activeBtnSlice";
 
-export const NavFooter = ({onChange, activeElement}) => {
+export const NavFooter = ({onChange}) => {
     const dispatch = useDispatch()
     const currentButtonData = useSelector(state => state.activeBtnSlice.activeButton)
+    const isActiveKeyboard = useSelector(state => state.otherFuncSlice.isActiveKeyboard)
     const buttonData = [
         { imageSource: Group, isActive: false, activeSource: GroupActive, id: '' },
         { imageSource: Man, isActive: false, activeSource: ManActive, id: '' },
@@ -31,6 +39,15 @@ export const NavFooter = ({onChange, activeElement}) => {
         dispatch(setActiveButton(updatedButtonData))
         onChange(updatedButtonData[index].id)
     };
+
+    
+    if (Platform.OS === 'android') {
+        if (isActiveKeyboard === true) {
+            return (
+                null
+            )
+        }
+    }
 
     return (
         <LinearGradient
@@ -51,8 +68,8 @@ export const NavFooter = ({onChange, activeElement}) => {
                             key={index}
                             colors={
                                 button.isActive
-                                    ? ['#B7975AD9', '#8A6E3E', '#E7C173', '#E7C173', '#8A6E3E']  // Градиент для активной кнопки
-                                    : ['transparent'] // Градиент для неактивной кнопки
+                                    ? ['#B7975AD9', '#8A6E3E', '#E7C173', '#E7C173', '#8A6E3E']
+                                    : ['transparent', 'transparent'] 
                             }
                             start={[0, 0]}
                             end={[1, 0]}
@@ -88,8 +105,8 @@ const styles = StyleSheet.create({
         height: 50,
         alignItems: 'center',
         justifyContent: 'center',
-        borderLeftColor: 'red',
-        borderRightColor: 'red',
+        borderLeftColor: '#fff',
+        borderRightColor: '#fff',
         borderRightWidth: 2,
         borderLeftWidth: 2,
     },
