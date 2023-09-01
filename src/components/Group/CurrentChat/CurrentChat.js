@@ -21,6 +21,8 @@ import {
 import EmojiSelector, { Categories } from "react-native-emoji-selector";
 import { BlurView } from 'expo-blur';
 import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
+import { Audio } from 'expo-av';
 import { startRecording, stopRecording } from '../../Extra/AudiRecorder/AudiRecorder';
 import { Camera } from 'expo-camera';
 import AxiosInstance from '../../Extra/Axios/AxiosInstance'
@@ -69,6 +71,7 @@ export const CurrentChat = ({ navigation }) => {
     const sectionListRef = useRef(null);
     const [searchResults, setSearchResults] = useState([]);
     const [fileObjects, setFileObjects] = useState([]);
+    const [sound, setSound] = useState();
     const state = useSelector(state => state.contextMenuSlice)
     const cameraState = useSelector(state => state.cameraSlice.image)
     const chatId = useSelector(state => state.chatSlice.chatId)
@@ -137,8 +140,18 @@ export const CurrentChat = ({ navigation }) => {
         });
 
         if (!result.canceled) {
-            setSelectedImage({ uri: result.assets[0].uri });
-            setFileObjects((prevFiles) => [...prevFiles, { uri: result.assets[0].uri }]);
+            const { uri, fileName } = result.assets[0];
+            const formData = new FormData();
+
+            const imageFile = {
+                uri,
+                name: fileName,
+                type: 'image/jpg', // Измените тип в зависимости от формата изображения
+            };
+
+            formData.append('files.file', imageFile);
+            setSelectedImage(formData);
+            setFileObjects((prevFiles) => [...prevFiles, {formData}]);
         }
     };
     // const todayIndex = reversedGroupedMessages.findIndex(group => moment(group.title, 'MMMM D').isSame(moment(), 'day'));
@@ -158,19 +171,69 @@ export const CurrentChat = ({ navigation }) => {
             const msg = 'msg';
             const to = 'to';
             const reply = 'reply';
-            const files = 'files';
+            // const files = 'files';
             const formData = new FormData();
             formData.append(msg, inputValue.input);
             formData.append(to, state.chatId);
             formData.append(reply, '');
-            formData.append(files, audioPath || selectedImage);
+            // formData.append(files, audioPath || selectedImage);
             const formParts = formData._parts.map((part) => [part[0], part[1]]);
             const msgValue = formParts.find((part) => part[0] === msg)[1];
             const toValue = formParts.find((part) => part[0] === to)[1];
             const replyValue = formParts.find((part) => part[0] === reply)[1];
-            const filesValue = formParts.find((part) => part[0] === files)[1];
+            // const filesValue = formParts.find((part) => part[0] === files)[1];
 
-            AxiosInstance.post('dialog/sendMessage', { msg: msgValue, to: toValue, reply: replyValue, files: filesValue })
+            //   console.log({...formData});
+            //   if (inputValue.audioFiles && inputValue.audioFiles.length > 0) {
+            //     formData.append('files', inputValue.audioFiles[0]);
+            //   }
+
+            //   if (inputValue.imageFiles && inputValue.imageFiles.length > 0) {
+            //     formData.append('files.file', inputValue.imageFiles[0]);
+            //     formData.append('text', inputValue.input);
+            //   }
+
+            AxiosInstance.post('dialog/sendMessage', { msg: msgValue, to: toValue, reply: replyValue.length === 0 ? null : replyValue, files: selectedImage })
+                .then((res) => {
+                    if (res.status === 200) {
+                        setInputValue({ input: '', reply: '', imageFiles: [], audioFiles: [] });
+                        AxiosInstance.get('/dialog/chat', { params: { id: state.chatId } }).then(res => {
+                            if (res.status === 200) {
+                                dispatch(updateData({ chat: res.data, chatId: state.chatId }))
+                            }
+                        })
+                    }
+                })
+                .catch((error) => {
+                    console.error('Ошибка при отправке сообщения:', error);
+                });
+        } else if(selectedImage) {
+            const msg = 'msg';
+            const to = 'to';
+            const reply = 'reply';
+            // const files = 'files';
+            const formData = new FormData();
+            formData.append(msg, inputValue.input);
+            formData.append(to, state.chatId);
+            formData.append(reply, '');
+            // formData.append(files, audioPath || selectedImage);
+            const formParts = formData._parts.map((part) => [part[0], part[1]]);
+            const msgValue = formParts.find((part) => part[0] === msg)[1];
+            const toValue = formParts.find((part) => part[0] === to)[1];
+            const replyValue = formParts.find((part) => part[0] === reply)[1];
+            // const filesValue = formParts.find((part) => part[0] === files)[1];
+
+            //   console.log({...formData});
+            //   if (inputValue.audioFiles && inputValue.audioFiles.length > 0) {
+            //     formData.append('files', inputValue.audioFiles[0]);
+            //   }
+
+            //   if (inputValue.imageFiles && inputValue.imageFiles.length > 0) {
+            //     formData.append('files.file', inputValue.imageFiles[0]);
+            //     formData.append('text', inputValue.input);
+            //   }
+
+            AxiosInstance.post('dialog/sendMessage', { msg: msgValue, to: toValue, reply: replyValue.length === 0 ? null : replyValue, files: selectedImage })
                 .then((res) => {
                     if (res.status === 200) {
                         setInputValue({ input: '', reply: '', imageFiles: [], audioFiles: [] });
@@ -185,6 +248,7 @@ export const CurrentChat = ({ navigation }) => {
                     console.error('Ошибка при отправке сообщения:', error);
                 });
         }
+        // console.log(selectedImage._parts[0][1].uri);
     };
 
     useEffect(() => {
@@ -235,6 +299,28 @@ export const CurrentChat = ({ navigation }) => {
         }
     };
 
+    const AudioPlayer = ({ audioUri }) => {
+        const [sound, setSound] = useState(null);
+        const [isActivePlay, setIsActivePlay] = useState(false);
+      
+        const playSound = async () => {
+          if (!sound) {
+            const { sound: audioSound } = await Audio.Sound.createAsync(
+              { uri: audioUri }
+            );
+            setSound(audioSound);
+          }
+      
+          if (!isActivePlay) {
+            setIsActivePlay(true);
+            await sound.playAsync(); // Воспроизведение аудио
+          } else {
+            setIsActivePlay(false);
+            await sound.stopAsync(); // Остановка аудио
+          }
+        };
+    }
+
     const stopAudio = () => {
         setIsActivePlay(false);
     }
@@ -261,10 +347,10 @@ export const CurrentChat = ({ navigation }) => {
         navigation.navigate("Image")
     }
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={[styles.container, Platform.OS === 'android' && {paddingTop: 40}]}>
             <StatusBar
                 translucent
-                barStyle='dark-content'
+                barStyle={Platform.OS === 'ios' ? 'dark-content' : null}
             />
             <TouchableWithoutFeedback style={styles.index} onPress={handleEmptyAreaPress}>
                 <View style={styles.messangerWrapper}>
@@ -388,6 +474,12 @@ export const CurrentChat = ({ navigation }) => {
                                                         Linking.openURL(url);
                                                     }}
                                                 />
+                                                {item.audio !== null && (
+                                                    <TouchableOpacity onPress={() => playSound(item.audio)}>
+                                                        {/* {console.log(item.audio)} */}
+                                                        {/* <Image source={isActivePlay ? Pause : Play} />  */}
+                                                    </TouchableOpacity>
+                                                )}
                                                 {item.attachments.length !== 0 && (
                                                     item.attachments.map(items => (
                                                         // console.log(items.url)
@@ -452,9 +544,9 @@ export const CurrentChat = ({ navigation }) => {
                 <View style={styles.chatContainer}>
                     <>
                         <>
-                            {selectedImage?.uri && (
+                            {selectedImage?._parts[0][1]?.uri && (
                                 <View style={styles.setImageWrapper}>
-                                    <Image style={styles.setImage} src={selectedImage?.uri} />
+                                    <Image style={styles.setImage} src={selectedImage?._parts[0][1]?.uri} />
                                     <TouchableOpacity style={styles.close} onPress={() => setSelectedImage(null)}>
                                         <Image source={Close} />
                                     </TouchableOpacity>
@@ -530,7 +622,7 @@ export const CurrentChat = ({ navigation }) => {
                             )}
                         </View>
                         <>
-                            {inputValue?.input?.length > 0 ? (
+                            {inputValue?.input?.length || selectedImage || audioPath > 0 ? (
                                 <TouchableOpacity style={styles.mic} onPress={() => handleSendMessage()}>
                                     <Image style={styles.inputImage} source={Send} />
                                 </TouchableOpacity>

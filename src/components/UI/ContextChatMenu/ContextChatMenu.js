@@ -117,7 +117,7 @@ export const ContextChatMenu = ({ navigation }) => {
         const formData = new FormData();
         formData.append(msg, inputValue.msg);
         formData.append(to, state.chatId);
-        formData.append(reply, touchMessage?._id);
+        formData.append(reply, state.touchMessage?._id);
         formData.append(files, audioPath || selectedImage);
         const formParts = formData._parts.map((part) => [part[0], part[1]]);
         const msgValue = formParts.find((part) => part[0] === msg)[1];
@@ -128,7 +128,6 @@ export const ContextChatMenu = ({ navigation }) => {
         AxiosInstance.post('dialog/sendMessage', { msg: msgValue, to: toValue, reply: replyValue, files: filesValue })
             .then((res) => {
                 if (res.status === 200) {
-                    handleOverlayPress()
                     setInputValue({ input: '', reply: '', imageFiles: [], audioFiles: [] });
                     AxiosInstance.get('/dialog/chat', { params: { id: state.chatId } }).then(res => {
                         if (res.status === 200) {
@@ -229,7 +228,7 @@ export const ContextChatMenu = ({ navigation }) => {
                                             numberOfLines={4}
                                             onChangeText={(text) => handleInputChange('msg', text)}
                                         />
-                                        {inputValue.msg.length === 0
+                                        {inputValue?.msg?.length === 0
                                             ? <Text style={{
                                                 color: '#e04b5a',
                                                 fontSize: 12,
@@ -243,7 +242,7 @@ export const ContextChatMenu = ({ navigation }) => {
                                         }
                                         <Button
                                             onPress={() => editMessage()}
-                                            disabled={inputValue.msg.length === 0 && true}
+                                            disabled={inputValue?.msg?.length === 0 && true}
                                             title="Сохранить"
                                         ></Button>
                                     </>
@@ -275,7 +274,7 @@ export const ContextChatMenu = ({ navigation }) => {
                                             numberOfLines={4}
                                             onChangeText={(text) => handleInputChange('msg', text)}
                                         />
-                                        {inputValue.msg.length === 0
+                                        {inputValue?.msg?.length === 0
                                             ? <Text style={{
                                                 color: '#e04b5a',
                                                 fontSize: 12,

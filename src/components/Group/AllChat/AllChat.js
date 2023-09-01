@@ -8,7 +8,8 @@ import {
     TouchableOpacity,
     TouchableWithoutFeedback,
     TextInput,
-    Button
+    Button,
+    Platform
 } from "react-native";
 import Archive from '../../../../assets/images/archive_folder.png'
 import { useEffect, useState } from "react";
@@ -84,10 +85,6 @@ export const AllChat = ({
             handleEmptyAreaPress()
         }
     }, [])
-
-    const dump = () => {
-        dispatch(openedChatCheck(false))
-    }
     return (
         <SafeAreaView style={styles.container}>
             <>
@@ -124,7 +121,14 @@ export const AllChat = ({
                         </TouchableOpacity>
                     </View>
                     <View style={styles.buttonWrapper}>
-                        <LinearGradient
+                        {Platform.OS === 'android' ? (
+                            <View style={{flexDirection: 'row', alignItems: 'center', }}>
+                                <Button color={categoryActive === "Чат" ? '#353535' : '#353535'} onPress={() => setCategoryActive("Чат")} title="Чат" style={styles.gradientButton}></Button>
+                                {/* <Button color={categoryActive === "Звонки" ? '#353535' : '#FFFFFF'} onPress={() => { setCategoryActive("Звонки")}} title="Звонки" style={styles.gradientButton} disabled={true}></Button> */}
+                            </View>
+                        ) : (
+                            <>
+                            <LinearGradient
                             colors={categoryActive === "Чат"
                                 ? ['rgba(183, 151, 90, 0.85)', '#8A6E3E', '#E7C173', '#E7C173', '#8A6E3E']
                                 : ['rgba(51, 51, 51, 0.85)', '#000', '#333', '#333', '#000']
@@ -136,7 +140,8 @@ export const AllChat = ({
                         >
                             <Button color={categoryActive === "Чат" ? '#353535' : '#FFFFFF'} onPress={() => setCategoryActive("Чат")} title="Чат" style={styles.button}></Button>
                         </LinearGradient>
-                        <LinearGradient
+                        {/* <LinearGradient
+                            disabled={true}
                             colors={categoryActive === "Звонки"
                                 ? ['rgba(183, 151, 90, 0.85)', '#8A6E3E', '#E7C173', '#E7C173', '#8A6E3E']
                                 : ['rgba(51, 51, 51, 0.85)', '#000', '#333', '#333', '#000']
@@ -146,8 +151,10 @@ export const AllChat = ({
                             end={[0, 0]}
                             style={styles.gradientButton}
                         >
-                            <Button color={categoryActive === "Звонки" ? '#353535' : '#FFFFFF'} onPress={() => { setCategoryActive("Звонки"); dump() }} title="Звонки" style={styles.button}></Button>
-                        </LinearGradient>
+                            <Button color={categoryActive === "Звонки" ? '#353535' : '#FFFFFF'} onPress={() => { setCategoryActive("Звонки")}} title="Звонки" style={styles.button} disabled={true}></Button>
+                        </LinearGradient> */}
+                        </>
+                        )}
                     </View>
                 </LinearGradient>
             </View>

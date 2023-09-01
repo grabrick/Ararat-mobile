@@ -17,9 +17,6 @@ export const Search = ({ setCategoryActive, categoryActive }) => {
     // const [results, setResults] = useState([]);
     // const data = useSelector(state => state.groupSlice)
     const dispatch = useDispatch()
-    const dump = () => {
-        dispatch(openedChatCheck(false))
-    }
 
     // useEffect(() => {
     //     dispatch(findGroups())
@@ -73,7 +70,7 @@ export const Search = ({ setCategoryActive, categoryActive }) => {
                             end={[0, 0]}
                             style={styles.gradientButton}
                         >
-                            <Button color={categoryActive === "Звонки" ? '#353535' : '#FFFFFF'} onPress={() => { setCategoryActive("Звонки"); dump() }} title="Звонки" style={styles.button}></Button>
+                            <Button color={categoryActive === "Звонки" ? '#353535' : '#FFFFFF'} onPress={() => { setCategoryActive("Звонки")}} title="Звонки" style={styles.button}></Button>
                         </LinearGradient>
                     </View>
                 </LinearGradient>

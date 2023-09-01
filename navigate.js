@@ -11,6 +11,9 @@ import { ContextChatMenu } from './src/components/UI/ContextChatMenu/ContextChat
 import {GroupProfile} from './src/components/GroupProfile/GroupProfile'
 import { ViewCamera } from './src/components/UI/ViewCamer/ViewCamera';
 import { WatchImage } from './src/components/UI/WatchImage/WatchImage';
+import { Platform } from 'react-native';
+import { Profile } from './src/components/Profile/Profile';
+import { AuthRegister } from './src/components/Auth/AuthRegister/AuthRegister';
 
 
 const Stack = createNativeStackNavigator();
@@ -36,6 +39,7 @@ export const Navigate = () => {
               options={{
                 title: '',
                 headerShown: false,
+                animation: Platform.OS === 'android' ? 'none' : 'default'
               }}
             />
             <Stack.Screen 
@@ -44,6 +48,7 @@ export const Navigate = () => {
               options={{
                 title: '', 
                 headerShown: false,
+                animation: Platform.OS === 'android' ? 'none' : 'default'
               }} 
             />
             <Stack.Screen 
@@ -52,6 +57,7 @@ export const Navigate = () => {
               options={{
                 title: '',
                 headerShown: false,
+                animation: Platform.OS === 'android' ? 'none' : 'default'
             }} 
             />
             <Stack.Screen 
@@ -60,7 +66,8 @@ export const Navigate = () => {
               options={{
                 title: '',
                 presentation: 'modal',
-                // headerShown: false,
+                headerShown: false,
+                animation: Platform.OS === 'android' ? 'none' : 'default'
             }}
             />
             <Stack.Screen 
@@ -69,6 +76,7 @@ export const Navigate = () => {
               options={{
               title: '',
               headerShown: false,
+              animation: Platform.OS === 'android' ? 'none' : 'default'
             }}
             />
             <Stack.Screen 
@@ -77,6 +85,7 @@ export const Navigate = () => {
               options={{
               title: '',
               headerShown: false,
+              animation: Platform.OS === 'android' ? 'none' : 'default'
             }}
             />
             <Stack.Screen 
@@ -86,6 +95,25 @@ export const Navigate = () => {
               title: '',
               presentation: 'modal',
               headerShown: false,
+              animation: Platform.OS === 'android' ? 'none' : 'default'
+            }}
+            />
+            <Stack.Screen 
+              name="Profile" 
+              component={Profile} 
+              options={{
+              title: '',
+              headerShown: false,
+              animation: Platform.OS === 'android' ? 'none' : 'default'
+            }}
+            />
+            <Stack.Screen 
+              name="Registr" 
+              component={AuthRegister} 
+              options={{
+              title: '',
+              headerShown: false,
+              animation: Platform.OS === 'android' ? 'none' : 'default'
             }}
             />
           </Stack.Navigator>

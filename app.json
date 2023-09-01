@@ -16,7 +16,9 @@
       [
         "expo-camera",
         {
-          "permissions": ["camera"],
+          "permissions": [
+            "camera"
+          ],
           "cameraPermission": "allow",
           "microphonePermission": "allow"
         }
@@ -26,16 +28,27 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.cursedimages.araratmobile"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.cursedimages.araratmobile"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "e43bfbe3-5f95-4d72-8586-505a1eb5616a"
+      }
     }
   }
 }

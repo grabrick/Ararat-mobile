@@ -8,6 +8,7 @@ import {
     StyleSheet,
     TouchableWithoutFeedback,
     StatusBar,
+    Platform,
 } from "react-native";
 // import Back from '../../../../assets/images/back.png'
 import BackLeft from '../../../../assets/images/arrow-left.png'
@@ -20,7 +21,7 @@ export const Archive = ({setIsActiveArchive, navigation}) => {
     //     dispatch(isActive(false))
     // }
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={[styles.container, Platform.OS === 'android' ? {paddingTop: 50} : {}]}>
             <StatusBar
                 translucent
                 barStyle='dark-content'

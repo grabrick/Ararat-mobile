@@ -2,7 +2,7 @@ import { View, Image, StyleSheet, TouchableOpacity, Platform } from "react-nativ
 import Logo from '../../../assets/images/Logo.png'
 import Profile from '../../../assets/images/Profile.png'
 
-export const Header = () => {
+export const Header = ({ navigation }) => {
   return (
     <View style={[styles.container, Platform.OS === 'android' && {marginTop: 40}]}>
       <View style={styles.imgWrapper}>

@@ -129,7 +129,7 @@ export default function MainPage({ navigation }) {
           <ViewCamera />
         ) : (
           <>
-            {isAuth && <Header />}
+            {isAuth && <Header navigation={navigation} />}
             <View style={styles.wrapper}>
               {isAuth ? (
                 <>
